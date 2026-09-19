@@ -1,0 +1,22 @@
+# 依赖
+node_modules/
+
+# 构建产物
+release/
+dist/
+out/
+.electron-cache/
+
+# 本地密钥配置（含真实密钥，切勿提交）
+src/js/config.js
+
+# 系统
+.DS_Store
+Thumbs.db
+
+# 日志
+*.log
+npm-debug.log*
+
+# Electron 运行时残留
+Singleton*
