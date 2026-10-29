@@ -878,6 +878,7 @@ textarea.input { height: auto; padding: 10px 12px; resize: vertical; line-height
 
 .train-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 12px; }
 .train-card {
+  position: relative;
   background: var(--card);
   border: 0.5px solid var(--separator);
   border-radius: var(--radius);
@@ -898,6 +899,18 @@ textarea.input { height: auto; padding: 10px 12px; resize: vertical; line-height
   margin-bottom: 11px;
 }
 .train-no { font-size: 19px; font-weight: 700; color: var(--blue); letter-spacing: -0.3px; }
+
+/* 车次卡片底部操作（桌面端无需再进二级页才能看详情） */
+.train-card-actions {
+  display: flex;
+  gap: 7px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 0.5px dashed var(--separator);
+  opacity: 0.55;
+  transition: opacity var(--transition);
+}
+.train-card:hover .train-card-actions { opacity: 1; }
 .train-duration {
   font-size: 12px;
   color: var(--secondary);
@@ -1089,6 +1102,14 @@ textarea.input { height: auto; padding: 10px 12px; resize: vertical; line-height
 .swatch:hover { transform: scale(1.1); }
 .swatch.selected { outline: 2px solid var(--blue); outline-offset: 2px; }
 
+/* 主题色设置：左侧预设 + 右侧自定义调色器并排 */
+.theme-picker-row {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
 .slider-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
 .slider-label { font-size: 12px; color: var(--secondary); width: 34px; flex-shrink: 0; }
 input[type="range"] {
@@ -1197,6 +1218,441 @@ input[type="range"]::-webkit-slider-thumb {
 }
 .record-date { font-size: 12.5px; color: var(--secondary); min-width: 96px; font-variant-numeric: tabular-nums; }
 .record-value { font-size: 15px; font-weight: 600; color: var(--blue); }
+
+/* ==================================================================
+ * 车次详情 / 算路器 / 开售时间 / 运转分享 / 行程车票 / 大数据
+ * ================================================================== */
+
+/* --- 三栏式详情布局：主内容 + 粘性侧栏 --- */
+.detail-2col {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 16px;
+  align-items: start;
+}
+.detail-2col > .card { margin-top: 0; }
+.detail-side {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+}
+.detail-side > .card { margin-top: 0; }
+@media (max-width: 1240px) {
+  .detail-2col { grid-template-columns: minmax(0, 1fr); }
+  .detail-side { position: static; }
+}
+
+/* 时间线里的「当前站」高亮 */
+.timeline-row.is-current .timeline-content {
+  background: var(--theme-soft);
+  margin: 0 -10px;
+  padding-left: 10px;
+  padding-right: 10px;
+  border-radius: var(--radius-sm);
+}
+.timeline-row.is-current .timeline-dot {
+  background: var(--theme);
+  box-shadow: 0 0 0 3px var(--theme-soft);
+}
+
+/* 静态地图（高德 v3 staticmap） */
+.static-map {
+  width: 100%;
+  display: block;
+  border-radius: var(--radius-sm);
+  margin-top: 12px;
+  background: var(--fill);
+  min-height: 160px;
+  object-fit: cover;
+}
+
+/* 途经车站 chips */
+.line-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* 车组资料网格 */
+.car-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+.car-info-item {
+  background: var(--card2);
+  border: 0.5px solid var(--separator);
+  border-radius: var(--radius-sm);
+  padding: 11px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-height: 74px;
+}
+.car-info-icon {
+  width: 22px; height: 22px;
+  object-fit: contain;
+  margin-bottom: 3px;
+  opacity: 0.9;
+}
+.car-info-name { font-size: 11.5px; color: var(--secondary); }
+.car-info-value { font-size: 14.5px; font-weight: 600; word-break: break-word; }
+
+/* 列车大图 / 车厢图 */
+.car-pic {
+  width: 100%;
+  display: block;
+  border-radius: var(--radius-sm);
+  background: var(--fill);
+  cursor: zoom-in;
+}
+.car-scroll {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  scrollbar-width: thin;
+}
+.car-diagram {
+  height: 96px;
+  width: auto;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  background: var(--fill);
+  border: 0.5px solid var(--separator);
+  cursor: zoom-in;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+.car-diagram:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+/* --- 算路器 --- */
+.route-summary {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.route-km {
+  font-size: 40px;
+  font-weight: 800;
+  letter-spacing: -1.5px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+.route-unit { font-size: 16px; color: var(--secondary); font-weight: 500; }
+.route-meta { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 8px; }
+.route-meta-item { font-size: 13px; color: var(--secondary); }
+.route-meta-item b { color: var(--label); font-variant-numeric: tabular-nums; }
+.route-warning {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--orange);
+  display: flex;
+  gap: 7px;
+  align-items: flex-start;
+}
+.route-plan {
+  margin-top: 12px;
+  padding: 11px 13px;
+  background: var(--theme-soft);
+  border-radius: var(--radius-sm);
+  font-size: 12.5px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.route-plan b { font-variant-numeric: tabular-nums; }
+
+/* 里程精度选项 */
+.precision-opts { display: flex; gap: 10px; }
+.precision-opt {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--separator);
+  background: var(--card2);
+  cursor: pointer;
+  transition: border-color var(--transition), background var(--transition);
+}
+.precision-opt:hover { background: var(--fill2); }
+.precision-opt.active { border-color: var(--theme); background: var(--theme-fill); }
+.precision-name { font-size: 13.5px; font-weight: 600; }
+.precision-desc { font-size: 11px; color: var(--secondary); margin-top: 2px; }
+
+/* --- 开售时间表 --- */
+.sale-time-cell { font-size: 15px; font-weight: 700; color: var(--theme-text); font-variant-numeric: tabular-nums; }
+.sale-renamed {
+  font-size: 11px;
+  color: var(--secondary);
+  border: 0.5px solid var(--tertiary);
+  border-radius: 4px;
+  padding: 0 5px;
+  white-space: nowrap;
+}
+.table-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.table-scroll { max-height: calc(100vh - 400px); min-height: 260px; overflow: auto; border-radius: var(--radius-sm); }
+.table-scroll .data-table thead th { position: sticky; top: 0; z-index: 2; }
+
+/* --- 运转分享：行程卡片 --- */
+.travel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(430px, 1fr));
+  gap: 14px;
+}
+.travel-card {
+  position: relative;
+  overflow: hidden;
+  border: 1.5px solid;
+  border-radius: 16px;
+  padding: 16px 16px 14px;
+  min-height: 128px;
+  display: flex;
+  flex-direction: column;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+.travel-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.travel-watermark {
+  position: absolute;
+  left: 2px;
+  bottom: -18px;
+  font-size: 92px;
+  font-weight: 900;
+  letter-spacing: -4px;
+  line-height: 1;
+  opacity: 0.45;
+  pointer-events: none;
+  user-select: none;
+}
+.travel-body { position: relative; z-index: 1; }
+.travel-route {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 19px;
+  font-weight: 700;
+  color: #1c1c1e;
+}
+.travel-arrow { color: rgba(0, 0, 0, 0.35); font-weight: 400; }
+.travel-seat {
+  margin-left: auto;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.55);
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 20px;
+  padding: 2px 10px;
+}
+.travel-meta {
+  display: flex;
+  gap: 12px;
+  margin-top: 6px;
+  font-size: 12.5px;
+  color: rgba(0, 0, 0, 0.5);
+  font-variant-numeric: tabular-nums;
+}
+.travel-model {
+  position: absolute;
+  right: 14px;
+  bottom: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.32);
+  z-index: 1;
+}
+.travel-actions {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 7px;
+  margin-top: 12px;
+}
+.travel-act {
+  width: 30px; height: 30px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.72);
+  color: rgba(0, 0, 0, 0.62);
+  font-size: 12.5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition), color var(--transition);
+}
+.travel-act:hover { background: rgba(255, 255, 255, 0.98); color: #1c1c1e; }
+.travel-act.danger:hover { background: var(--red); color: #fff; }
+
+/* 行程表单：桌面端用横向两列，不用底部浮层 */
+.travel-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 14px;
+}
+.travel-form-grid .field { margin-bottom: 0; }
+
+/* --- 行程车票 --- */
+.trip-hero {
+  border-radius: var(--radius-lg);
+  padding: 22px 24px;
+  color: #fff;
+  background: linear-gradient(135deg, var(--theme), var(--theme-strong));
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.trip-head { display: flex; align-items: baseline; gap: 12px; }
+.trip-train { font-size: 30px; font-weight: 800; letter-spacing: -0.5px; }
+.trip-date { font-size: 13.5px; opacity: 0.9; font-variant-numeric: tabular-nums; }
+.trip-route { font-size: 18px; display: flex; align-items: center; gap: 10px; }
+.trip-route .arrow { opacity: 0.7; }
+.trip-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2px; }
+.trip-chip {
+  font-size: 12.5px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  padding: 3px 12px;
+}
+
+/* 出票机吐票动画 */
+.print-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 40px 20px;
+}
+.printer {
+  position: relative;
+  width: 260px;
+  height: 64px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #3a3a3c, #1c1c1e);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+.printer-slot {
+  position: absolute;
+  left: 14px; right: 14px; top: 50%;
+  height: 8px;
+  margin-top: -4px;
+  border-radius: 4px;
+  background: #000;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.9);
+}
+.printer-paper {
+  position: absolute;
+  left: 22px; right: 22px;
+  top: 50%;
+  height: 0;
+  background: #fff;
+  border-radius: 0 0 4px 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.printer-paper.ejecting { animation: paper-out 1.5s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+@keyframes paper-out {
+  0%   { height: 0; opacity: 1; }
+  100% { height: 150px; opacity: 1; }
+}
+.print-text { font-size: 13.5px; color: var(--secondary); }
+
+.ticket-preview.new {
+  position: relative;
+  background: var(--card2);
+}
+.ticket-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+
+/* --- 铁路大数据（占位） --- */
+.placeholder-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 56px 24px 40px;
+}
+.placeholder-icon {
+  width: 64px; height: 64px;
+  border-radius: 18px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+  font-size: 27px;
+  background: linear-gradient(135deg, var(--theme), var(--theme-strong));
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+}
+.placeholder-title { font-size: 21px; font-weight: 700; letter-spacing: -0.3px; }
+.placeholder-text { font-size: 13.5px; color: var(--secondary); text-align: center; max-width: 460px; line-height: 1.7; }
+
+/* --- 列车雷达 --- */
+.radar-layout {
+  display: grid;
+  grid-template-columns: 340px minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+@media (max-width: 1240px) {
+  .radar-layout { grid-template-columns: minmax(0, 1fr); }
+  .radar-layout .detail-side { position: static; }
+}
+.radar-map-box {
+  position: relative;
+  height: calc(100vh - 232px);
+  min-height: 460px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--fill);
+  border: 0.5px solid var(--separator);
+}
+.radar-map-box .amap-container { width: 100%; height: 100%; }
+.radar-legend {
+  position: absolute;
+  left: 16px; bottom: 16px;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 12px;
+  padding: 11px 14px;
+  font-size: 12px;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.radar-legend-row { display: flex; align-items: center; gap: 8px; color: var(--label2); }
+.radar-tip {
+  position: absolute;
+  top: 16px; left: 16px;
+  z-index: 50;
+  background: rgba(28, 28, 30, 0.86);
+  color: #fff;
+  padding: 9px 15px;
+  border-radius: 20px;
+  font-size: 12.5px;
+  display: none;
+  align-items: center;
+  gap: 8px;
+}
+.radar-train-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 11px;
+  border-radius: var(--radius-sm);
+  background: var(--card2);
+  border: 0.5px solid var(--separator);
+  margin-bottom: 7px;
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition);
+}
+.radar-train-row:hover { background: var(--theme-soft); border-color: var(--theme-border); }
+.radar-train-no { font-weight: 700; font-size: 14.5px; color: var(--theme-text); font-variant-numeric: tabular-nums; }
+.radar-train-meta { font-size: 11.5px; color: var(--secondary); margin-left: auto; text-align: right; }
+.radar-list-scroll { max-height: 300px; overflow: auto; padding-right: 2px; }
+
+/* 列表可滚动时，让主内容区不因超高而挤压 */
+.record-row.clickable:hover { background: var(--fill); }
 
 /* ==================================================================
  * 响应式

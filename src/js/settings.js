@@ -3,6 +3,8 @@
  * 通过 preload 暴露的 window.native.store 持久化到 userData/railkalenext-config.json
  */
 
+import { applyThemeVars, tint } from './color.js'
+
 export const SETTINGS_KEY = 'app_settings'
 
 export const DEFAULT_SETTINGS = {
@@ -11,7 +13,8 @@ export const DEFAULT_SETTINGS = {
   apiSource: 'next',         // 'next' | 'old' | 'railgo'
   customCards: [],           // [{ id, title, color, bgImage, features: [...] }]
   keys: {},                  // 密钥覆盖：{ amap: 'default' | '自定义值' }
-  cache: {}                  // 缓存（如路网 GeoJSON 目录索引等）
+  cache: {},                 // 缓存（如路网 GeoJSON 目录索引等）
+  searchHistory: []          // 最近查询过的车次：[{ train, time }]，最多 20 条
 }
 
 let state = { ...DEFAULT_SETTINGS }
@@ -239,13 +242,55 @@ export function genId(prefix) {
   return prefix + '_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6)
 }
 
-/** 应用主题色到全局 CSS 变量 */
+// ---------------------------------------------------------------------------
+// 最近查询车次
+// ---------------------------------------------------------------------------
+
+const HISTORY_MAX = 20
+
+/** 最近查询车次（去重、最新在前） */
+export function getSearchHistory() {
+  const list = state.searchHistory
+  return Array.isArray(list) ? list : []
+}
+
+/** 去重后的最近车次号，最多 n 个 */
+export function getRecentTrains(n = 6) {
+  const seen = []
+  for (const item of getSearchHistory()) {
+    const no = typeof item === 'string' ? item : (item && (item.train || item.trainNo))
+    if (no && seen.indexOf(no) < 0) seen.push(no)
+    if (seen.length >= n) break
+  }
+  return seen
+}
+
+/** 记录一次车次查询 */
+export function addSearchHistory(train) {
+  const no = String(train || '').trim().toUpperCase()
+  if (!no) return state
+  const rest = getSearchHistory().filter((it) => {
+    const v = typeof it === 'string' ? it : (it && (it.train || it.trainNo))
+    return String(v || '').toUpperCase() !== no
+  })
+  const next = [{ train: no, time: Date.now() }, ...rest].slice(0, HISTORY_MAX)
+  state = { ...state, searchHistory: next }
+  emit()
+  // 持久化不阻塞调用方（查询流程里高频触发）
+  saveSettings({ searchHistory: next }).catch(() => {})
+  return state
+}
+
+/** 清空最近查询 */
+export function clearSearchHistory() {
+  state = { ...state, searchHistory: [] }
+  emit()
+  return saveSettings({ searchHistory: [] })
+}
+
+/** 应用主题色到全局 CSS 变量（--theme / --theme-text / --theme-soft 等） */
 export function applyTheme(color) {
-  const c = color || '#007aff'
-  document.documentElement.style.setProperty('--blue', c)
-  document.documentElement.style.setProperty('--theme', c)
-  document.documentElement.style.setProperty('--theme-soft', hexToRgba(c, 0.12))
-  document.documentElement.style.setProperty('--theme-shadow', hexToRgba(c, 0.3))
+  applyThemeVars(color || '#007aff')
 }
 
 /** hex → rgba */

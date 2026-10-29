@@ -55,7 +55,7 @@ function seatChips(train) {
 
 function trainCard(t) {
   return `
-    <div class="train-card" data-train="${esc(t.trainNo)}">
+    <div class="train-card" data-train="${esc(t.trainNo)}" title="点击查看车次详情">
       <div class="train-card-head">
         <span class="train-no">${esc(t.trainNo)}</span>
         <span class="train-duration">${esc(t.duration || '')}</span>
@@ -77,6 +77,10 @@ function trainCard(t) {
         <span>${esc(t.fromTime)}</span><span class="sep">→</span><span>${esc(t.toTime)}</span>
       </div>
       ${seatChips(t)}
+      <div class="train-card-actions">
+        <button class="btn btn-ghost btn-sm" data-act="detail"><i class="fas fa-clipboard-list"></i> 车次详情</button>
+        <button class="btn btn-ghost btn-sm" data-act="timetable"><i class="fas fa-calendar-alt"></i> 时刻表</button>
+      </div>
     </div>
   `
 }
@@ -165,8 +169,11 @@ function render(host) {
       <div class="train-list">${state.trains.map(trainCard).join('')}</div>
     `
     resultHost.querySelectorAll('.train-card').forEach(el => {
-      el.addEventListener('click', () => {
-        navigate('timetable', { train: el.dataset.train, date: state.date })
+      el.addEventListener('click', (e) => {
+        const actBtn = e.target.closest('[data-act]')
+        const act = actBtn ? actBtn.dataset.act : 'detail'
+        if (act === 'timetable') navigate('timetable', { train: el.dataset.train, date: state.date })
+        else navigate('train-detail', { train: el.dataset.train, date: state.date })
       })
     })
   }

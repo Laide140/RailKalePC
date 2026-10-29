@@ -66,7 +66,6 @@ function buildSidebar() {
     }
     secHost.appendChild(group)
   }
-
   el.querySelectorAll('.nav-item').forEach(item => {
     item.addEventListener('click', () => navigate(item.dataset.path))
   })
@@ -117,7 +116,10 @@ function updateApiBadge() {
   const badge = document.getElementById('api-source-badge')
   if (!badge) return
   const src = getSettings().apiSource || 'next'
-  badge.textContent = { next: '新 API', old: '旧 API', railgo: 'RailGo' }[src] || '新 API'
+  badge.textContent = { next: '新 API v3', old: '旧 API', railgo: 'RailGo' }[src] || '新 API v3'
+  badge.title = src === 'railgo'
+    ? 'RailGo 仅覆盖车站大屏 / 检票口 / 线路图，其余自动回退到新源'
+    : ''
 }
 
 // ---------------------------------------------------------------------------

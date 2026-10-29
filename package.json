@@ -1,7 +1,7 @@
 {
   "name": "railkalenextpc",
   "productName": "RailKale Next PC",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "铁路万花筒 RailKale: Next 桌面版 - 综合铁路信息查询工具（Electron）",
   "main": "main.js",
   "author": "RailKale",
@@ -17,7 +17,7 @@
     "dist:linux": "electron-builder --linux"
   },
   "devDependencies": {
-    "electron": "^44.4.1",
+    "electron": "42.0.0",
     "electron-builder": "^26.15.3"
   },
   "build": {

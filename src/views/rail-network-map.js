@@ -6,6 +6,7 @@
 import { registerView } from '../js/router.js'
 import { getKey } from '../js/keys.js'
 import { getRailwayDir, getRailwayIndex } from '../js/api.js'
+import { loadAMap } from '../js/amap.js'
 import { cacheGet, cacheSet, cacheRemove, cacheClear, cacheSizeMB, cacheIsPersistent } from '../js/settings.js'
 import { escapeHTML } from '../js/util.js'
 import { toast, toastError, confirmDialog } from '../js/ui.js'
@@ -35,7 +36,6 @@ const PROVINCE = {
 
 const CACHE_PREFIX = 'railway-'
 
-let amapLoading = null
 let hostRef = null
 let map = null
 let layers = []
@@ -44,27 +44,6 @@ let cancelled = false
 
 function esc(s) { return escapeHTML(s) }
 function provinceName(fn) { return PROVINCE[fn.substring(0, 6)] || fn.substring(0, 2) }
-
-/** 载入高德 JS API */
-function loadAMap() {
-  if (window.AMap) return Promise.resolve()
-  if (amapLoading) return amapLoading
-
-  const key = getKey('amap_js')
-  const sec = getKey('amap_sec')
-  if (!key) return Promise.reject(new Error('未配置高德 JS API 密钥'))
-
-  amapLoading = new Promise((resolve, reject) => {
-    if (sec) window._AMapSecurityConfig = { securityJsCode: sec }
-    const s = document.createElement('script')
-    s.src = 'https://webapi.amap.com/maps?v=2.0&key=' + encodeURIComponent(key)
-    s.async = true
-    s.onload = () => resolve()
-    s.onerror = () => reject(new Error('高德地图加载失败'))
-    document.head.appendChild(s)
-  })
-  return amapLoading
-}
 
 /** 从网络加载单个 GeoJSON */
 async function fetchGeoJSON(filename) {

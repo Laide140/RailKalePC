@@ -1,12 +1,14 @@
 /**
  * RailKale: Next PC - 首页
  * 三种布局：分区卡片 / 宫格 / 自定义卡片
+ * 顶部车次直达搜索 + 最近查询（对应移动端首页）
  */
 
 import { SECTIONS, getFeature } from '../js/features.js'
 import { registerView, navigate } from '../js/router.js'
-import { getSettings, hexToRgba } from '../js/settings.js'
+import { getSettings, getRecentTrains, addSearchHistory, hexToRgba } from '../js/settings.js'
 import { escapeHTML } from '../js/util.js'
+import { toast } from '../js/ui.js'
 
 function secCard(sec) {
   const tags = (sec.features || [])
@@ -82,6 +84,7 @@ function customMode() {
 function render(host) {
   const s = getSettings()
   const layout = s.homeLayout || 'card'
+  const recent = getRecentTrains(8)
 
   let body = ''
   if (layout === 'grid') body = gridMode()
@@ -93,7 +96,7 @@ function render(host) {
   host.innerHTML = `
     <div class="page-head">
       <div class="page-head-left">
-        <div class="page-head-icon" style="background:linear-gradient(135deg,#007aff,#5ac8fa)">
+        <div class="page-head-icon" style="background:linear-gradient(135deg,var(--theme),var(--theme-strong))">
           <i class="fas fa-train"></i>
         </div>
         <div>
@@ -107,10 +110,17 @@ function render(host) {
       </div>
     </div>
 
-    <div class="hero-search" data-goto="train-query">
-      <i class="fas fa-search"></i>
-      <span class="hero-search-text">查车次、查车站、查时刻…</span>
-      <span class="hero-search-kbd">车次查询</span>
+    <div class="card" style="padding:14px 16px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <i class="fas fa-search" style="color:var(--secondary);font-size:15px"></i>
+        <input class="input" id="hero-train" placeholder="输入车次直接查看车次详情，如 G1"
+               style="border:none;background:transparent;font-size:15px;padding-left:0" />
+        <button class="btn btn-sm" id="hero-go" style="flex-shrink:0"><i class="fas fa-arrow-right"></i> 查看</button>
+      </div>
+      ${recent.length ? `<div style="display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin-top:12px;padding-top:12px;border-top:0.5px solid var(--separator)">
+        <span style="font-size:12px;color:var(--secondary)">最近</span>
+        ${recent.map(t => `<button class="tag-pill blue" data-recent="${escapeHTML(t)}" style="cursor:pointer;border:none">${escapeHTML(t)}</button>`).join('')}
+      </div>` : ''}
     </div>
 
     ${body}
@@ -119,11 +129,26 @@ function render(host) {
       <img src="assets/icons/logo.png" style="width:38px;height:38px;border-radius:10px" alt="logo" />
       <div style="flex:1">
         <div style="font-size:14px;font-weight:600">铁路万花筒 · RailKale: Next</div>
-        <div style="font-size:12px;color:var(--secondary)">数据接口：自有 / RailGo · 动车组配属：rail.re · 地图：高德</div>
+        <div style="font-size:12px;color:var(--secondary)">数据接口：自有 / RailGo · 地图：高德 · 检票口官方：12306</div>
       </div>
       <button class="btn btn-ghost btn-sm" data-goto="mine">关于</button>
     </div>
   `
+
+  const input = host.querySelector('#hero-train')
+
+  function goTrain(no) {
+    const v = String(no || '').trim().toUpperCase()
+    if (!v) { toast('请输入车次号'); return }
+    addSearchHistory(v)
+    navigate('train-detail', { train: v })
+  }
+
+  host.querySelector('#hero-go').addEventListener('click', () => goTrain(input.value))
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') goTrain(input.value) })
+  host.querySelectorAll('[data-recent]').forEach(b => {
+    b.addEventListener('click', () => goTrain(b.dataset.recent))
+  })
 
   // 事件
   host.querySelectorAll('[data-goto]').forEach(el => {

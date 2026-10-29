@@ -152,6 +152,34 @@ export async function saveBase64Image(base64, defaultName) {
 }
 
 /**
+ * 保存文本文件到磁盘（如 .travel 行程文件）
+ * @param {string} defaultName 默认文件名
+ * @param {string} text 文件内容
+ * @returns {Promise<{ok: boolean, filePath?: string, error?: string}>}
+ */
+export async function saveTextFile(defaultName, text) {
+  const base64 = btoa(unescape(encodeURIComponent(String(text))))
+  if (window.native && window.native.dialog) {
+    return await window.native.dialog.saveBinary({ defaultPath: defaultName, base64 })
+  }
+  // 浏览器兜底：Blob 下载
+  try {
+    const blob = new Blob([text], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = defaultName
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    setTimeout(() => URL.revokeObjectURL(url), 2000)
+    return { ok: true }
+  } catch (e) {
+    return { ok: false, error: String(e && e.message ? e.message : e) }
+  }
+}
+
+/**
  * 由异常提取对用户有意义的错误文案
  *
  * 接口在 4xx 时会返回 { error: '未找到站点: 北京南' } 这类信息，

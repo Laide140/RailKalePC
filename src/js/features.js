@@ -1,13 +1,18 @@
 /**
  * RailKale: Next PC - 功能与分区数据源
- * 首页 / 侧边栏 / 自定义卡片 统一从这里取数据
+ * 首页 / 侧边栏 / 自定义卡片 / 分区详情 统一从这里取数据
+ *
+ * 与移动端 common/features.js 保持一致（id / path 相同），
+ * 额外补充桌面端用的颜色与分区图标色。
  */
 
 export const FEATURES = [
   // 出行服务
   { id: 'train-query', icon: 'fa-train', label: '车次查询', path: 'train-query', color: '#007aff', group: 'travel' },
+  { id: 'train-detail', icon: 'fa-clipboard-list', label: '车次详情', path: 'train-detail', color: '#007aff', group: 'travel' },
   { id: 'timetable', icon: 'fa-calendar-alt', label: '时刻表', path: 'timetable', color: '#34c759', group: 'travel' },
   { id: 'train-locate', icon: 'fa-map-marker-alt', label: '实时位置', path: 'train-locate', color: '#ff2d55', group: 'travel' },
+  { id: 'train-radar', icon: 'fa-satellite-dish', label: '列车雷达', path: 'train-radar', color: '#5ac8fa', group: 'travel' },
   { id: 'speed-test', icon: 'fa-gauge-high', label: '定位测速', path: 'speed-test', color: '#ff9500', group: 'travel' },
 
   // 车站服务
@@ -16,12 +21,17 @@ export const FEATURES = [
   { id: 'traffic-query', icon: 'fa-bus', label: '交通查询', path: 'traffic-query', color: '#5ac8fa', group: 'station' },
   { id: 'station-code', icon: 'fa-building', label: '车站代码', path: 'station-code', color: '#34c759', group: 'station' },
   { id: 'station-area', icon: 'fa-stairs', label: '站台规模', path: 'station-area', color: '#5856d6', group: 'station' },
+  { id: 'sale-time', icon: 'fa-clock', label: '开售时间', path: 'sale-time', color: '#00c7be', group: 'station' },
 
   // 实用工具
   { id: 'emu-query', icon: 'fa-subway', label: '运用担当', path: 'emu-query', color: '#af52de', group: 'tools' },
+  { id: 'route-planner', icon: 'fa-route', label: '算路器', path: 'route-planner', color: '#ff9500', group: 'tools' },
   { id: 'rail-network-map', icon: 'fa-map', label: '路网地图', path: 'rail-network-map', color: '#ff9500', group: 'tools' },
   { id: 'souvenir-ticket', icon: 'fa-print', label: '纪念车票', path: 'souvenir-ticket', color: '#ff9500', group: 'tools' },
-  { id: 'train-broadcast', icon: 'fa-bullhorn', label: '列车广播', path: 'train-broadcast', color: '#007aff', group: 'tools' }
+  { id: 'travel-ticket', icon: 'fa-ticket-alt', label: '行程车票', path: 'travel-ticket', color: '#ff3b30', group: 'tools' },
+  { id: 'train-broadcast', icon: 'fa-bullhorn', label: '列车广播', path: 'train-broadcast', color: '#007aff', group: 'tools' },
+  { id: 'big-data', icon: 'fa-chart-simple', label: '铁路大数据', path: 'big-data', color: '#5ac8fa', group: 'tools' },
+  { id: 'operation-share', icon: 'fa-camera-retro', label: '运转分享', path: 'operation-share', color: '#ff2d55', group: 'tools' }
 ]
 
 export const SECTIONS = [
@@ -33,7 +43,7 @@ export const SECTIONS = [
     badgeColor: '#007aff',
     bgImage: '../../static/section-travel.jpg',
     gradient: 'linear-gradient(135deg, #007aff 0%, #4a90d9 100%)',
-    features: ['train-query', 'timetable', 'train-locate', 'speed-test']
+    features: ['train-query', 'train-detail', 'timetable', 'train-locate', 'train-radar', 'speed-test']
   },
   {
     id: 'station',
@@ -43,7 +53,7 @@ export const SECTIONS = [
     badgeColor: '#5856d6',
     bgImage: '../../static/section-station.jpg',
     gradient: 'linear-gradient(135deg, #5856d6 0%, #af52de 100%)',
-    features: ['station-screen', 'ticket-gate', 'traffic-query', 'station-code', 'station-area']
+    features: ['station-screen', 'ticket-gate', 'traffic-query', 'station-code', 'station-area', 'sale-time']
   },
   {
     id: 'tools',
@@ -53,7 +63,7 @@ export const SECTIONS = [
     badgeColor: '#af52de',
     bgImage: '../../static/section-tracking.jpg',
     gradient: 'linear-gradient(135deg, #af52de 0%, #ff2d55 100%)',
-    features: ['emu-query', 'rail-network-map', 'souvenir-ticket', 'train-broadcast']
+    features: ['emu-query', 'route-planner', 'rail-network-map', 'souvenir-ticket', 'travel-ticket', 'train-broadcast', 'big-data', 'operation-share']
   }
 ]
 

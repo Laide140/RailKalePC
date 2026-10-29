@@ -4,7 +4,7 @@
  */
 
 import { registerView } from '../js/router.js'
-import { getTrainLocate } from '../js/api.js'
+import { getTrainLocate, getTrainSetOfTrain } from '../js/api.js'
 import { getKey } from '../js/keys.js'
 import { escapeHTML, apiErrMsg } from '../js/util.js'
 import { toast, toastError } from '../js/ui.js'
@@ -197,13 +197,10 @@ function render(host) {
 
   async function fetchEmu(train) {
     try {
-      const res = await fetch('https://api.rail.re/train/' + encodeURIComponent(train))
-      const arr = await res.json()
-      if (Array.isArray(arr) && arr.length) {
-        const ds = new Date()
-        const todayStr = `${ds.getFullYear()}-${String(ds.getMonth() + 1).padStart(2, '0')}-${String(ds.getDate()).padStart(2, '0')}`
-        const f = arr.find(x => x.date && x.date.indexOf(todayStr) === 0)
-        state.emu = (f && f.emu_no) || arr[0].emu_no || ''
+      // 担当车组来自自有数据源（/api/v3/emu），与移动端一致
+      const emu = await getTrainSetOfTrain(train)
+      if (emu) {
+        state.emu = emu
         if (hostRef === host) paint()
       }
     } catch (e) { /* 非关键信息，忽略 */ }
