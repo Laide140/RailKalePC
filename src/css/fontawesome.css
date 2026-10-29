@@ -100,3 +100,18 @@
 .fa-eye::before { content: "\f06e" }
 .fa-eye-slash::before { content: "\f070" }
 .fa-bug::before { content: "\f188" }
+
+/* --- v1.1.0 新增视图用到的图标 --- */
+.fa-calculator::before { content: "\f1ec" }
+.fa-camera-retro::before { content: "\f083" }
+.fa-circle-exclamation::before { content: "\f06a" }
+.fa-exchange-alt::before, .fa-right-left::before { content: "\f362" }
+.fa-list::before { content: "\f03a" }
+.fa-moon::before { content: "\f186" }
+.fa-redo::before { content: "\f01e" }
+.fa-satellite-dish::before { content: "\f7c0" }
+.fa-share-nodes::before { content: "\f1e0" }
+.fa-shield-halved::before { content: "\f3ed" }
+.fa-sign-in-alt::before, .fa-right-to-bracket::before { content: "\f2f6" }
+.fa-suitcase-rolling::before { content: "\f5c1" }
+.fa-triangle-exclamation::before, .fa-exclamation-triangle::before { content: "\f071" }

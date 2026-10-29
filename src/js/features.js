@@ -30,7 +30,6 @@ export const FEATURES = [
   { id: 'souvenir-ticket', icon: 'fa-print', label: '纪念车票', path: 'souvenir-ticket', color: '#ff9500', group: 'tools' },
   { id: 'travel-ticket', icon: 'fa-ticket-alt', label: '行程车票', path: 'travel-ticket', color: '#ff3b30', group: 'tools' },
   { id: 'train-broadcast', icon: 'fa-bullhorn', label: '列车广播', path: 'train-broadcast', color: '#007aff', group: 'tools' },
-  { id: 'big-data', icon: 'fa-chart-simple', label: '铁路大数据', path: 'big-data', color: '#5ac8fa', group: 'tools' },
   { id: 'operation-share', icon: 'fa-camera-retro', label: '运转分享', path: 'operation-share', color: '#ff2d55', group: 'tools' }
 ]
 
@@ -63,7 +62,7 @@ export const SECTIONS = [
     badgeColor: '#af52de',
     bgImage: '../../static/section-tracking.jpg',
     gradient: 'linear-gradient(135deg, #af52de 0%, #ff2d55 100%)',
-    features: ['emu-query', 'route-planner', 'rail-network-map', 'souvenir-ticket', 'travel-ticket', 'train-broadcast', 'big-data', 'operation-share']
+    features: ['emu-query', 'route-planner', 'rail-network-map', 'souvenir-ticket', 'travel-ticket', 'train-broadcast', 'operation-share']
   }
 ]
 

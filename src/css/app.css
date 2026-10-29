@@ -1220,7 +1220,7 @@ input[type="range"]::-webkit-slider-thumb {
 .record-value { font-size: 15px; font-weight: 600; color: var(--blue); }
 
 /* ==================================================================
- * 车次详情 / 算路器 / 开售时间 / 运转分享 / 行程车票 / 大数据
+ * 车次详情 / 算路器 / 开售时间 / 运转分享 / 行程车票
  * ================================================================== */
 
 /* --- 三栏式详情布局：主内容 + 粘性侧栏 --- */
@@ -1563,26 +1563,6 @@ input[type="range"]::-webkit-slider-thumb {
   background: var(--card2);
 }
 .ticket-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
-
-/* --- 铁路大数据（占位） --- */
-.placeholder-hero {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 14px;
-  padding: 56px 24px 40px;
-}
-.placeholder-icon {
-  width: 64px; height: 64px;
-  border-radius: 18px;
-  display: flex; align-items: center; justify-content: center;
-  color: #fff;
-  font-size: 27px;
-  background: linear-gradient(135deg, var(--theme), var(--theme-strong));
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
-}
-.placeholder-title { font-size: 21px; font-weight: 700; letter-spacing: -0.3px; }
-.placeholder-text { font-size: 13.5px; color: var(--secondary); text-align: center; max-width: 460px; line-height: 1.7; }
 
 /* --- 列车雷达 --- */
 .radar-layout {
